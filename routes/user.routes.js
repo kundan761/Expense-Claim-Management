@@ -1,71 +1,70 @@
+
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { UserModel } = require('../model/user.model');
 const { blacklist } = require('../blacklist');
 
+const UserRouter = express.Router();
+UserRouter.use(express.json());
 
-const userRoute = express.Router();
-
-//user register
-userRoute.post('/register', async(req, res)=>{
-    const {username, email, pass, role} = req.body;
+// Register new user
+UserRouter.post('/register', async (req, res) => {
+    const { username, email, pass, role } = req.body;
     try {
-        bcrypt.hash(pass, 5, async(err, hash)=>{
-            if(err){
-                res.status(200).json({err});
-            }else{
+        bcrypt.hash(pass, 5, async (err, hash) => {
+            if (err) {
+                res.status(200).json({ err });
+            } else {
                 const user = new UserModel({
                     username,
-                    email, 
+                    email,
                     pass: hash,
                     role,
                 });
                 await user.save();
-                res.status(200).json({msg: ' A new user is registered'});
+                res.status(200).json({ msg: 'New user has been registered' });
             }
         });
     } catch (error) {
-        res.status(400).json({error});
+        res.status(400).json({ error });
     }
 });
 
-
-//user Login
-
-userRoute.post('/login', async(req, res)=>{
-    const {email, pass} = req.body;
+// user login
+UserRouter.post('/login', async (req, res) => {
+    const { email, pass } = req.body;
     console.log(req.body);
     try {
-        const user = await UserModel.findOne({email});
+        const user = await UserModel.findOne({ email });
         console.log(user);
-        bcrypt.compare(pass, user.pass, (err, result)=>{
-            if(result){
-                const token = jwt.sign({userID: user._id, username: user.username},'masai');
-                res.status(200).json({token});
-            }else{
-                res.status(200).json({err});
+        bcrypt.compare(pass, user.pass, (err, result) => {
+            if (result) {
+                const token = jwt.sign(
+                    { userID: user._id, username: user.username },
+                    'masai'
+                );
+                res.status(200).json({ token });
+            } else {
+                res.status(200).json({ err });
             }
         });
     } catch (error) {
-        res.status(400).json({error});
+        res.status(400).json({ error });
     }
 });
 
-
-//user logout
-userRoute.get('/logout', (req, res)=>{
+// user logout
+UserRouter.get('/logout', (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
     try {
-        if(token){
+        if (token) {
             blacklist.push(token);
-            res.status(200).json({msg: 'User is logged out'});
+            res.status(200).json({ mag: 'User has been logged out' });
         }
     } catch (error) {
-        res.status(400).json({error});
+        res.status(400).json({ error });
     }
 });
 
-module.exports ={
-    userRoute
-};
+module.exports = { UserRouter };

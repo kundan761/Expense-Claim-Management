@@ -7,8 +7,10 @@ const userSchema = mongoose.Schema({
     role: {
         type: String,
         enum:['employee', 'manager', 'finance'],
-        default: 'employee'
+        default: 'employee',
     }
+},{
+    versionKey: false,
 });
 
 const UserModel = mongoose.model('user', userSchema);

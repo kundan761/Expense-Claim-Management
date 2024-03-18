@@ -1,12 +1,14 @@
 const express = require('express');
 require('dotenv').config();
-const { connection } = require('mongoose');
+const { connection } = require('./config/db');
 const cors = require('cors');
+const { UserRouter } = require('./routes/user.routes');
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
+app.use('/users', UserRouter);
 
 app.get('/', (req, res) =>{
     res.status(200).json({msg:'This is home route of Expense Claim Mangement'});
